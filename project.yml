@@ -1,0 +1,30 @@
+name: BalancedNewsSource
+options:
+  bundleIdPrefix: com.balancednewssource
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+targets:
+  BalancedNewsSource:
+    type: application
+    platform: iOS
+    sources:
+      - BalancedNewsSource
+    settings:
+      base:
+        INFOPLIST_FILE: BalancedNewsSource/Resources/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.balancednewssource.app
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  BalancedNewsSourceTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - BalancedNewsSourceTests
+    dependencies:
+      - target: BalancedNewsSource
