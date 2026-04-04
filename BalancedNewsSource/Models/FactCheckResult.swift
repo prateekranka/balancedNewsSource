@@ -9,21 +9,21 @@ struct FactCheckResponse: Codable {
 // MARK: - Claim
 
 struct FactCheckClaim: Codable {
-    let text: String
+    let text: String?
     let claimant: String?
-    let claimReview: [ClaimReview]
+    let claimReview: [ClaimReview]?
 }
 
 // MARK: - Review
 
 struct ClaimReview: Codable {
-    let textualRating: String
-    let publisher: ClaimPublisher
-    let url: String
+    let textualRating: String?
+    let publisher: ClaimPublisher?
+    let url: String?
 }
 
 // MARK: - Publisher
 
 struct ClaimPublisher: Codable {
-    let name: String
+    let name: String?
 }

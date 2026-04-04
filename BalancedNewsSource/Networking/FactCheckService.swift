@@ -40,9 +40,10 @@ final class FactCheckService {
 
         // Collect the first available claimReview across all claims.
         for claim in claims {
-            guard let review = claim.claimReview.first else { continue }
+            guard let reviews = claim.claimReview,
+                  let review = reviews.first,
+                  let rating = review.textualRating else { continue }
 
-            let rating = review.textualRating
             let lowercased = rating.lowercased()
 
             let isPositive = Self.positiveRatingTokens.contains(where: { lowercased.contains($0) })
