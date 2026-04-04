@@ -29,8 +29,10 @@ enum Endpoint {
         components.host   = "factchecktools.googleapis.com"
         components.path   = "/v1alpha1/claims:search"
         components.queryItems = [
-            URLQueryItem(name: "query", value: query),
-            URLQueryItem(name: "key",   value: APIKeys.googleFactCheck)
+            URLQueryItem(name: "query",        value: query),
+            URLQueryItem(name: "languageCode", value: "en"),
+            URLQueryItem(name: "pageSize",     value: "5"),
+            URLQueryItem(name: "key",          value: APIKeys.googleFactCheck)
         ]
         return components.url
     }
