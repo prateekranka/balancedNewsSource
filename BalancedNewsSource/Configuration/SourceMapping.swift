@@ -5,40 +5,40 @@ struct SourceMapping {
     // MARK: - Master source list
 
     static let sources: [NewsSource] = [
-        // Left-Wing
-        NewsSource(id: "cnn",                    name: "CNN",                    leaning: .left),
-        NewsSource(id: "msnbc",                  name: "MSNBC",                  leaning: .left),
-        NewsSource(id: "the-huffington-post",    name: "HuffPost",               leaning: .left),
-        NewsSource(id: "buzzfeed-news",          name: "BuzzFeed News",          leaning: .left),
-        NewsSource(id: "vice-news",              name: "Vice News",              leaning: .left),
+        // Left-Leaning
+        NewsSource(id: "the-hindu",       name: "The Hindu",        domain: "thehindu.com",        leaning: .left),
+        NewsSource(id: "ndtv",            name: "NDTV",             domain: "ndtv.com",            leaning: .left),
+        NewsSource(id: "the-wire",        name: "The Wire",         domain: "thewire.in",          leaning: .left),
+        NewsSource(id: "scroll-in",       name: "Scroll.in",        domain: "scroll.in",           leaning: .left),
+        NewsSource(id: "indian-express",  name: "Indian Express",   domain: "indianexpress.com",   leaning: .left),
 
         // Centrist
-        NewsSource(id: "associated-press",       name: "Associated Press",       leaning: .center),
-        NewsSource(id: "reuters",                name: "Reuters",                leaning: .center),
-        NewsSource(id: "bbc-news",               name: "BBC News",               leaning: .center),
-        NewsSource(id: "the-wall-street-journal",name: "The Wall Street Journal",leaning: .center),
-        NewsSource(id: "abc-news",               name: "ABC News",               leaning: .center),
+        NewsSource(id: "times-of-india",  name: "The Times of India", domain: "timesofindia.indiatimes.com", leaning: .center),
+        NewsSource(id: "hindustan-times", name: "Hindustan Times",  domain: "hindustantimes.com",  leaning: .center),
+        NewsSource(id: "economic-times",  name: "The Economic Times", domain: "economictimes.indiatimes.com", leaning: .center),
+        NewsSource(id: "mint",            name: "Mint",             domain: "livemint.com",        leaning: .center),
+        NewsSource(id: "firstpost",       name: "Firstpost",        domain: "firstpost.com",       leaning: .center),
 
-        // Right-Wing
-        NewsSource(id: "fox-news",               name: "Fox News",               leaning: .right),
-        NewsSource(id: "breitbart-news",         name: "Breitbart News",         leaning: .right),
-        NewsSource(id: "the-washington-times",   name: "The Washington Times",   leaning: .right),
-        NewsSource(id: "national-review",        name: "National Review",        leaning: .right),
-        NewsSource(id: "new-york-post",          name: "New York Post",          leaning: .right)
+        // Right-Leaning
+        NewsSource(id: "republic-world",  name: "Republic World",   domain: "republicworld.com",   leaning: .right),
+        NewsSource(id: "opindia",         name: "OpIndia",          domain: "opindia.com",         leaning: .right),
+        NewsSource(id: "swarajya",        name: "Swarajya",         domain: "swarajyamag.com",     leaning: .right),
+        NewsSource(id: "zee-news",        name: "Zee News",         domain: "zeenews.india.com",   leaning: .right),
+        NewsSource(id: "news18",          name: "News18",           domain: "news18.com",          leaning: .right)
     ]
 
     // MARK: - Helpers
 
-    /// Returns the NewsAPI source IDs that belong to the given political leaning.
-    static func sourceIDs(for leaning: PoliticalLeaning) -> [String] {
+    /// Returns the domains that belong to the given political leaning.
+    static func domains(for leaning: PoliticalLeaning) -> [String] {
         sources
             .filter { $0.leaning == leaning }
-            .map { $0.id }
+            .map { $0.domain }
     }
 
-    /// Returns a comma-separated string of NewsAPI source IDs for the given leaning,
-    /// ready to be passed directly as the `sources` query parameter.
-    static func commaSeparatedIDs(for leaning: PoliticalLeaning) -> String {
-        sourceIDs(for: leaning).joined(separator: ",")
+    /// Returns a comma-separated string of domains for the given leaning,
+    /// ready to be passed directly as the `domains` query parameter.
+    static func commaSeparatedDomains(for leaning: PoliticalLeaning) -> String {
+        domains(for: leaning).joined(separator: ",")
     }
 }

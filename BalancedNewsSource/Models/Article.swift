@@ -82,9 +82,11 @@ struct Article: Identifiable, Codable, Hashable {
 
     static func == (lhs: Article, rhs: Article) -> Bool {
         lhs.id == rhs.id
+            && lhs.factCheckStatus == rhs.factCheckStatus
     }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(factCheckStatus)
     }
 }

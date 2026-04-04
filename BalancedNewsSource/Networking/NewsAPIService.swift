@@ -12,11 +12,11 @@ final class NewsAPIService {
 
     // MARK: - Public API
 
-    /// Fetches top headlines for the given political leaning.
+    /// Fetches articles for the given political leaning from Indian news sources.
     func fetchArticles(for leaning: PoliticalLeaning) async throws -> [Article] {
-        let sourceIDs = SourceMapping.commaSeparatedIDs(for: leaning)
+        let domains = SourceMapping.commaSeparatedDomains(for: leaning)
 
-        guard let url = Endpoint.topHeadlines(sources: sourceIDs) else {
+        guard let url = Endpoint.everything(domains: domains) else {
             throw APIError.invalidURL
         }
 

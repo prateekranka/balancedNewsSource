@@ -1,9 +1,9 @@
 import Foundation
 
 enum PoliticalLeaning: String, CaseIterable, Identifiable {
-    case left = "Left-Wing"
+    case left = "Left-Leaning"
     case center = "Centrist"
-    case right = "Right-Wing"
+    case right = "Right-Leaning"
 
     var id: String { rawValue }
 
