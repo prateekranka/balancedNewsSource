@@ -46,15 +46,28 @@ final class FactCheckService {
 
         guard !query.isEmpty,
               let url = Endpoint.factCheck(query: query) else {
+            print("[FactCheck] ⚠️ Empty query or invalid URL for: \(article.title)")
             return .noClaimsFound
         }
 
+        print("[FactCheck] 🔍 Query: \"\(query)\"")
+
         let data: Data
+        let httpResponse: URLResponse
         do {
-            let (responseData, _) = try await URLSession.shared.data(from: url)
-            data = responseData
+            (data, httpResponse) = try await URLSession.shared.data(from: url)
         } catch {
+            print("[FactCheck] ❌ Network error: \(error.localizedDescription)")
             return .noClaimsFound
+        }
+
+        if let http = httpResponse as? HTTPURLResponse {
+            print("[FactCheck] HTTP \(http.statusCode) for query: \"\(query)\"")
+            guard http.statusCode == 200 else {
+                let body = String(data: data, encoding: .utf8) ?? "<unreadable>"
+                print("[FactCheck] ❌ Non-200 body: \(body)")
+                return .noClaimsFound
+            }
         }
 
         let response: FactCheckResponse
@@ -62,12 +75,17 @@ final class FactCheckService {
             let decoder = JSONDecoder()
             response = try decoder.decode(FactCheckResponse.self, from: data)
         } catch {
+            print("[FactCheck] ❌ Decode error: \(error)")
+            print("[FactCheck]    Raw JSON: \(String(data: data, encoding: .utf8) ?? "<unreadable>")")
             return .noClaimsFound
         }
 
         guard let claims = response.claims, !claims.isEmpty else {
+            print("[FactCheck] ℹ️ No claims found for: \"\(query)\"")
             return .noClaimsFound
         }
+
+        print("[FactCheck] ✅ \(claims.count) claim(s) returned for: \"\(query)\"")
 
         // Collect the first available claimReview across all claims.
         for claim in claims {
@@ -76,6 +94,7 @@ final class FactCheckService {
                   let rating = review.textualRating else { continue }
 
             let lowercased = rating.lowercased()
+            print("[FactCheck] 📋 Rating: \"\(rating)\" for query: \"\(query)\"")
 
             let isPositive = Self.positiveRatingTokens.contains(where: { lowercased.contains($0) })
             if isPositive { return .verified }
