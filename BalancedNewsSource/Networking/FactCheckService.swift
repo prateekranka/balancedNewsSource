@@ -2,6 +2,17 @@ import Foundation
 
 final class FactCheckService {
 
+    // MARK: - URLSession
+
+    /// Dedicated session with a short timeout so fact-check requests never block
+    /// the UI for more than ~8 seconds each.
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest  = 8
+        config.timeoutIntervalForResource = 10
+        return URLSession(configuration: config)
+    }()
+
     // MARK: - Constants
 
     /// Words in a textualRating that indicate a claim has been verified as true.
@@ -41,24 +52,32 @@ final class FactCheckService {
     /// Never throws — returns `.noClaimsFound` on any failure.
     func checkArticle(_ article: Article) async -> Article.FactCheckStatus {
         let focusedQuery = Self.extractQuery(from: article.title)
+        print("[FactCheck] START  title='\(article.title)'")
+        print("[FactCheck]        query='\(focusedQuery)'")
 
         // Pass 1 – All Indian fact-checkers fired in parallel; first result wins.
         if let status = await firstIndianResult(for: focusedQuery) {
+            print("[FactCheck] PASS1  hit  → \(status)  title='\(article.title)'")
             return status
         }
+        print("[FactCheck] PASS1  miss  (no Indian publisher had a claim)")
 
         // Pass 2 – General search with focused query.
         if let url = Endpoint.factCheck(query: focusedQuery),
            let status = await fetchStatus(from: url) {
+            print("[FactCheck] PASS2  hit  → \(status)  title='\(article.title)'")
             return status
         }
+        print("[FactCheck] PASS2  miss  (general / focused query)")
 
         // Pass 3 – General search with original full title (safety net).
         if focusedQuery != article.title.lowercased(),
            let url = Endpoint.factCheck(query: article.title),
            let status = await fetchStatus(from: url) {
+            print("[FactCheck] PASS3  hit  → \(status)  title='\(article.title)'")
             return status
         }
+        print("[FactCheck] PASS3  miss  → .noClaimsFound  title='\(article.title)'")
 
         return .noClaimsFound
     }
@@ -98,14 +117,20 @@ final class FactCheckService {
     /// Fires one request per Indian fact-checker site in parallel and returns the first
     /// non-nil result. Cancels the remaining tasks as soon as one succeeds.
     private func firstIndianResult(for query: String) async -> Article.FactCheckStatus? {
-        let urls = Self.indianFactCheckers.compactMap {
-            Endpoint.factCheck(query: query, reviewPublisherSiteFilter: $0)
+        let pairs = Self.indianFactCheckers.compactMap { site -> (String, URL)? in
+            guard let url = Endpoint.factCheck(query: query, reviewPublisherSiteFilter: site) else { return nil }
+            return (site, url)
         }
-        guard !urls.isEmpty else { return nil }
+        guard !pairs.isEmpty else { return nil }
 
         return await withTaskGroup(of: Article.FactCheckStatus?.self) { group in
-            for url in urls {
-                group.addTask { await self.fetchStatus(from: url) }
+            for (site, url) in pairs {
+                group.addTask {
+                    print("[FactCheck] PASS1  trying \(site)")
+                    let result = await self.fetchStatus(from: url)
+                    print("[FactCheck] PASS1  \(site) → \(result.map { "\($0)" } ?? "nil")")
+                    return result
+                }
             }
             for await result in group {
                 if let status = result {
@@ -122,7 +147,7 @@ final class FactCheckService {
     /// (so callers can continue to the next pass).
     private func fetchStatus(from url: URL) async -> Article.FactCheckStatus? {
         guard
-            let (data, _) = try? await URLSession.shared.data(from: url),
+            let (data, _) = try? await Self.session.data(from: url),
             let response  = try? JSONDecoder().decode(FactCheckResponse.self, from: data),
             let claims    = response.claims,
             !claims.isEmpty
