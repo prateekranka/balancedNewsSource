@@ -5,26 +5,26 @@ struct SourceMapping {
     // MARK: - Master source list
 
     static let sources: [NewsSource] = [
-        // Left-Wing
-        NewsSource(id: "cnn",                    name: "CNN",                    leaning: .left),
-        NewsSource(id: "msnbc",                  name: "MSNBC",                  leaning: .left),
-        NewsSource(id: "the-huffington-post",    name: "HuffPost",               leaning: .left),
-        NewsSource(id: "buzzfeed-news",          name: "BuzzFeed News",          leaning: .left),
-        NewsSource(id: "vice-news",              name: "Vice News",              leaning: .left),
+        // Left-Wing (progressive / opposition-leaning Indian outlets)
+        NewsSource(id: "the-hindu",              name: "The Hindu",              leaning: .left),
+        NewsSource(id: "ndtv",                   name: "NDTV",                   leaning: .left),
+        NewsSource(id: "the-wire",               name: "The Wire",               leaning: .left),
+        NewsSource(id: "scroll-news",            name: "Scroll.in",              leaning: .left),
+        NewsSource(id: "the-quint",              name: "The Quint",              leaning: .left),
 
-        // Centrist
-        NewsSource(id: "associated-press",       name: "Associated Press",       leaning: .center),
-        NewsSource(id: "reuters",                name: "Reuters",                leaning: .center),
+        // Centrist (broadly neutral Indian outlets)
+        NewsSource(id: "the-indian-express",     name: "The Indian Express",     leaning: .center),
+        NewsSource(id: "hindustan-times",        name: "Hindustan Times",        leaning: .center),
+        NewsSource(id: "the-times-of-india",     name: "The Times of India",     leaning: .center),
+        NewsSource(id: "india-today",            name: "India Today",            leaning: .center),
         NewsSource(id: "bbc-news",               name: "BBC News",               leaning: .center),
-        NewsSource(id: "the-wall-street-journal",name: "The Wall Street Journal",leaning: .center),
-        NewsSource(id: "abc-news",               name: "ABC News",               leaning: .center),
 
-        // Right-Wing
-        NewsSource(id: "fox-news",               name: "Fox News",               leaning: .right),
-        NewsSource(id: "breitbart-news",         name: "Breitbart News",         leaning: .right),
-        NewsSource(id: "the-washington-times",   name: "The Washington Times",   leaning: .right),
-        NewsSource(id: "national-review",        name: "National Review",        leaning: .right),
-        NewsSource(id: "new-york-post",          name: "New York Post",          leaning: .right)
+        // Right-Wing (pro-establishment / nationalist-leaning Indian outlets)
+        NewsSource(id: "news18",                 name: "News18",                 leaning: .right),
+        NewsSource(id: "zee-news",               name: "Zee News",               leaning: .right),
+        NewsSource(id: "republic-world",         name: "Republic World",         leaning: .right),
+        NewsSource(id: "the-economic-times",     name: "The Economic Times",     leaning: .right),
+        NewsSource(id: "wion",                   name: "WION",                   leaning: .right)
     ]
 
     // MARK: - Helpers
