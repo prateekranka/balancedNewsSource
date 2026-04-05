@@ -35,19 +35,16 @@ final class FactCheckService {
     /// Best-effort fact-check of the supplied article.
     /// Strategy:
     ///   1. Build a focused query by stripping stopwords from the title.
-    ///   2. Try each IFCN-certified Indian fact-checker with the focused query.
+    ///   2. Fire all Indian fact-checker requests **in parallel**; return the first hit.
     ///   3. Fall back to a general (unfiltered) search with the focused query.
     ///   4. If still nothing, retry the general search with the original full title.
     /// Never throws — returns `.noClaimsFound` on any failure.
     func checkArticle(_ article: Article) async -> Article.FactCheckStatus {
         let focusedQuery = Self.extractQuery(from: article.title)
 
-        // Pass 1 – Indian fact-checkers with focused query.
-        for site in Self.indianFactCheckers {
-            guard let url = Endpoint.factCheck(query: focusedQuery, reviewPublisherSiteFilter: site) else { continue }
-            if let status = await fetchStatus(from: url) {
-                return status
-            }
+        // Pass 1 – All Indian fact-checkers fired in parallel; first result wins.
+        if let status = await firstIndianResult(for: focusedQuery) {
+            return status
         }
 
         // Pass 2 – General search with focused query.
@@ -97,6 +94,28 @@ final class FactCheckService {
     }()
 
     // MARK: - Private Helpers
+
+    /// Fires one request per Indian fact-checker site in parallel and returns the first
+    /// non-nil result. Cancels the remaining tasks as soon as one succeeds.
+    private func firstIndianResult(for query: String) async -> Article.FactCheckStatus? {
+        let urls = Self.indianFactCheckers.compactMap {
+            Endpoint.factCheck(query: query, reviewPublisherSiteFilter: $0)
+        }
+        guard !urls.isEmpty else { return nil }
+
+        return await withTaskGroup(of: Article.FactCheckStatus?.self) { group in
+            for url in urls {
+                group.addTask { await self.fetchStatus(from: url) }
+            }
+            for await result in group {
+                if let status = result {
+                    group.cancelAll()
+                    return status
+                }
+            }
+            return nil
+        }
+    }
 
     /// Fetches and decodes a fact-check response, then maps it to a `FactCheckStatus`.
     /// Returns `nil` when the network call fails, decoding fails, or no claims are found
